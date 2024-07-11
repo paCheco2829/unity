@@ -24,12 +24,17 @@ public class comandosbasicos : MonoBehaviour
     public GameObject painelGameOver;
     public GameObject EntrarnoJogo;
     public GameObject SairdoJogo;
+    public float velocidadeBala;
+    public Transform posicaoBala;
+    public GameObject municao01;
+    public GameObject direcaoMunicao;
 
     void Start()
     {
         rbPlayer = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        vida = 5;
+        vida = 20;
+        municao = 5;
 
     }
 
@@ -40,7 +45,7 @@ public class comandosbasicos : MonoBehaviour
 
         rbPlayer.velocity = new Vector2(movimentoHorizontal * velocidadePersonagem, rbPlayer.velocity.y);
 
-       
+
 
         if (movimentoHorizontal > 0 && verificarDirecao == true)
         {
@@ -55,14 +60,25 @@ public class comandosbasicos : MonoBehaviour
 
         anim.SetInteger("run", (int)movimentoHorizontal);
 
-        textovida.text=vida.ToString();
-        textomunicao.text=municao.ToString();
-        if (vida<=0)
+        textovida.text = vida.ToString();
+        textomunicao.text = municao.ToString();
+        if (vida <= 0)
         {
             anim.SetTrigger("inimigo");
             Time.timeScale = 0;
             painelGameOver.SetActive(true);
-             
+
+        }
+        if (Input.GetMouseButtonDown(0) && municao>0)
+        {
+            atirarMunicao();
+            municao--;
+
+            anim.SetTrigger("atirarparado");
+        }
+        if(municao<=0)
+        {
+            municao = 0;
         }
 
     }
@@ -75,13 +91,17 @@ public class comandosbasicos : MonoBehaviour
 
         transform.localScale = new Vector3(x, transform.localScale.y, transform.localScale.z);
 
+        velocidadeBala *= -1;
+
+        direcaoMunicao.GetComponent<SpriteRenderer>().flipX = verificarDirecao;
+
     }
     public void pular()
     {
         if (Input.GetButtonDown("Jump") && sensor == true)
         {
             rbPlayer.AddForce(new Vector2(0, jump));
-            
+
         }
         anim.SetBool("sensor", sensor);
     }
@@ -107,7 +127,7 @@ public class comandosbasicos : MonoBehaviour
         if (collision.gameObject.CompareTag("inimigo"))
         {
             vida -= 1;
-           
+
         }
 
     }
@@ -117,15 +137,15 @@ public class comandosbasicos : MonoBehaviour
     }
     public void sairJogo()
     {
-        Application.Quit(); 
-    }
-    public void entrarJogo()
-    {
-        SceneManager.LoadScene("cena");
-    }
-
-    public void sair()
-    {
         Application.Quit();
     }
+
+    public void atirarMunicao()
+    {
+        GameObject temporario = Instantiate(municao01);
+
+    temporario.transform.position = posicaoBala.transform.position;
+        temporario.GetComponent<Rigidbody2D>().velocity = new Vector2(velocidadeBala,0); 
+}
+    
 }
